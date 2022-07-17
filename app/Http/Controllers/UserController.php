@@ -9,7 +9,9 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Requests\UserCreateRequest;
+use Illuminate\Auth\Events\Validated;
 use Illuminate\Contracts\Validation\Validator;
+use Illuminate\Support\Facades\Hash;
 
 class UserController extends Controller
 {
@@ -50,27 +52,38 @@ class UserController extends Controller
         }
     }
 
-    public function index()
+    public function user()
     {
-        $user = Auth::user();
-        $check = Auth::check();
-        return [$user, $check];
+        try {
+            $user = Auth::user();
+            return $user;
+        } catch (\Exception $exception) {
+            return response([
+                'message' => 'Houve um erro ao recuperar os dados do usuário autenticado',
+                'description' => $exception->getMessage()
+            ], 400);
+        }
     }
 
-    public function create(Request $request)
+    public function register(UserCreateRequest $request)
     {
-        $this->validate($request, [
-            'name' => 'required',
-            'email' => 'required|email',
-            'password' => 'required|min:6',
-        ]);
+        $request->all();
 
-        $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => bcrypt($request->password)
-        ]);
+        try {
+            $user = User::create([
+                'name' => $request->name,
+                'email' => $request->email,
+                'last_name' => $request->last_name,
+                'birthdate' => $request->birthdate,
+                'password' => Hash::make($request->password)
+            ]);
 
-        return $user;
+            return $user;
+        } catch (\Exception $exception) {
+            return response([
+                'message' => 'Houve um erro no cadastro',
+                'description' => $exception->getMessage()
+            ], 400);
+        }
     }
 }

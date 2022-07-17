@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Http\Requests;
+namespace App\Http\Requests\File;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class UserCreateRequest extends FormRequest
+class FileUploadRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -24,11 +24,7 @@ class UserCreateRequest extends FormRequest
     public function rules()
     {
         return [
-            'name' => 'string|max:255',
-            'last_name' => 'string|required',
-            'password' => 'required|min:6',
-            'birthdate' => 'date|required',
-            'email' => 'email|unique:users'
+            'file' => 'file|max:25600|required',
         ];
     }
 }
